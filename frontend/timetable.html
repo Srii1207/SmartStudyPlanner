@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Study Planner - Timetable</title>
+</head>
+<body>
+  <h1>Create Exam & Generate Timetable</h1>
+
+  <section>
+    <h2>Add Exam</h2>
+    <label>Subject:
+      <input type="text" id="subject" />
+    </label>
+    <br />
+    <label>Exam Date (YYYY-MM-DD):
+      <input type="text" id="examDate" placeholder="2025-01-20" />
+    </label>
+    <br />
+    <label>Total Chapters:
+      <input type="number" id="totalChapters" />
+    </label>
+    <br />
+    <label>Hours per Day:
+      <input type="number" id="hoursPerDay" />
+    </label>
+    <br />
+    <button onclick="addExam()">Save Exam</button>
+  </section>
+
+  <hr />
+
+  <section>
+    <h2>Generate Timetable</h2>
+    <label>Exam ID:
+      <input type="number" id="examId" />
+    </label>
+    <br />
+    <button onclick="generateTimetable()">Generate</button>
+  </section>
+
+  <hr />
+
+  <section>
+    <h2>Generated Timetable</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Start Chapter</th>
+          <th>End Chapter</th>
+          <th>Hours</th>
+        </tr>
+      </thead>
+      <tbody id="timetableBody">
+        <!-- rows added by JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <script src="js/timetable.js"></script>
+</body>
+</html>
