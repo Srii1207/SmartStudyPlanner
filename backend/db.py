@@ -16,7 +16,7 @@ def init_db():
     conn = get_connection()
     cur = conn.cursor()
 
-    # Exams table (exam-level information)
+    
     cur.execute("""
         CREATE TABLE IF NOT EXISTS exams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +27,7 @@ def init_db():
         );
     """)
 
-    # Tasks table (generated timetable / daily study plan)
+    
     cur.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +45,7 @@ def init_db():
     conn.close()
 
 
-# ---------------- EXAM FUNCTIONS ----------------
+
 
 def add_exam(subject, exam_date, total_chapters, hours_per_day):
     """Insert a new exam and return its ID."""
@@ -87,7 +87,7 @@ def get_exam_by_id(exam_id):
     return dict(row) if row else None
 
 
-# ---------------- TIMETABLE / TASK FUNCTIONS ----------------
+
 
 def clear_tasks_for_exam(exam_id):
     """Delete existing timetable rows for an exam."""
