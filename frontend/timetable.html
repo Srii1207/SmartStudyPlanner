@@ -2,61 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Study Planner - Timetable</title>
+  <title>Study Planner - NotebookLM Style</title>
+  <style>
+    /* Reset and basic styling */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f6fa;
+      color: #2f3640;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #273c75;
+    }
+
+    /* Grid layout like NotebookLM */
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      gap: 20px;
+    }
+
+    section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    section h2 {
+      margin-bottom: 15px;
+      color: #192a56;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #dcdde1;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #487eb0;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #487eb0;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #40739e;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #dcdde1;
+    }
+
+    th {
+      background-color: #40739e;
+      color: white;
+      border-radius: 6px;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f1f2f6;
+    }
+
+    /* Scrollable timetable panel */
+    .timetable-panel {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  </style>
 </head>
 <body>
-  <h1>Create Exam & Generate Timetable</h1>
+  <h1>Study Planner</h1>
 
-  <section>
-    <h2>Add Exam</h2>
-    <label>Subject:
-      <input type="text" id="subject" />
-    </label>
-    <br />
-    <label>Exam Date (YYYY-MM-DD):
-      <input type="text" id="examDate" placeholder="2025-01-20" />
-    </label>
-    <br />
-    <label>Total Chapters:
-      <input type="number" id="totalChapters" />
-    </label>
-    <br />
-    <label>Hours per Day:
-      <input type="number" id="hoursPerDay" />
-    </label>
-    <br />
-    <button onclick="addExam()">Save Exam</button>
-  </section>
+  <div class="container">
+    <!-- Left Panel: Add Exam -->
+    <section>
+      <h2>Add Exam</h2>
+      <label>Subject:
+        <input type="text" id="subject" placeholder="Maths, Physics..." />
+      </label>
+      <label>Exam Date (YYYY-MM-DD):
+        <input type="text" id="examDate" placeholder="2025-01-20" />
+      </label>
+      <label>Total Chapters:
+        <input type="number" id="totalChapters" />
+      </label>
+      <label>Hours per Day:
+        <input type="number" id="hoursPerDay" />
+      </label>
+      <button onclick="addExam()">Save Exam</button>
+    </section>
 
-  <hr />
+    <!-- Center Panel: Generate Timetable -->
+    <section>
+      <h2>Generate Timetable</h2>
+      <label>Exam ID:
+        <input type="number" id="examId" placeholder="Enter Exam ID" />
+      </label>
+      <button onclick="generateTimetable()">Generate</button>
 
-  <section>
-    <h2>Generate Timetable</h2>
-    <label>Exam ID:
-      <input type="number" id="examId" />
-    </label>
-    <br />
-    <button onclick="generateTimetable()">Generate</button>
-  </section>
+      <div class="timetable-panel">
+        <h2>Generated Timetable</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Start Chapter</th>
+              <th>End Chapter</th>
+              <th>Hours</th>
+            </tr>
+          </thead>
+          <tbody id="timetableBody">
+            <!-- rows added by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <hr />
-
-  <section>
-    <h2>Generated Timetable</h2>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Start Chapter</th>
-          <th>End Chapter</th>
-          <th>Hours</th>
-        </tr>
-      </thead>
-      <tbody id="timetableBody">
-        <!-- rows added by JS -->
-      </tbody>
-    </table>
-  </section>
+    <!-- Right Panel: Tools (NotebookLM style) -->
+    <section>
+      <h2>Tools</h2>
+      <button onclick="alert('Summary Tool Coming Soon!')">Summary</button>
+      <button onclick="alert('Flashcards Tool Coming Soon!')">Flashcards</button>
+      <button onclick="alert('Export Tool Coming Soon!')">Export PDF</button>
+    </section>
+  </div>
 
   <script src="js/timetable.js"></script>
 </body>
