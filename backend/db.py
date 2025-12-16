@@ -7,21 +7,17 @@ DB_PATH = "study_planner.db"
 def get_connection():
     """Create and return a DB connection."""
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # so we can return dict-like rows
+    conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_db():
-    """
-    Create tables if they don't exist.
-    Run this once at the start (or from a separate script).
-    """
+    """Create tables if they don't exist."""
     conn = get_connection()
     cur = conn.cursor()
 
-    # Example basic table – your DB person can modify this.
-    cur.execute(
-        """
+    # Tasks table
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             subject TEXT NOT NULL,
@@ -31,18 +27,35 @@ def init_db():
             description TEXT,
             completed INTEGER DEFAULT 0
         );
-        """
-    )
+    """)
+
+    # Materials table
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS materials (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            subject TEXT NOT NULL,
+            title TEXT NOT NULL,
+            file_path TEXT,
+            uploaded_on TEXT
+        );
+    """)
+
+    # Exams table
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS exams (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            subject TEXT NOT NULL,
+            exam_date TEXT NOT NULL,
+            syllabus TEXT
+        );
+    """)
 
     conn.commit()
     conn.close()
 
 
 def get_timetable():
-    """
-    Return ALL tasks (for timetable view).
-    TODO: DB person can adjust query (group by day, sort by time, etc.)
-    """
+    """Return all tasks ordered by date and time."""
     conn = get_connection()
     cur = conn.cursor()
 
@@ -50,15 +63,24 @@ def get_timetable():
     rows = cur.fetchall()
     conn.close()
 
-    # convert to list of dicts
     return [dict(row) for row in rows]
 
 
-def get_today_tasks():
-    """
-    Return tasks only for today's date.
-    """
-    today_str = date.today().isoformat()  # 'YYYY-MM-DD'
+def get_tasks():
+    """Return all tasks."""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM tasks;")
+    rows = cur.fetchall()
+    conn.close()
+
+    return [dict(row) for row in rows]
+
+
+def get_today():
+    """Return today's tasks."""
+    today_str = date.today().isoformat()
     conn = get_connection()
     cur = conn.cursor()
 
@@ -68,37 +90,30 @@ def get_today_tasks():
     )
     rows = cur.fetchall()
     conn.close()
+
     return [dict(row) for row in rows]
 
 
 def add_task(task_data: dict):
-    """
-    Insert a new task.
-    task_data is expected to be a dict with keys:
-    subject, date, start_time, end_time, description
-    """
+    """Insert a new task."""
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute(
-        """
+    cur.execute("""
         INSERT INTO tasks (subject, task_date, start_time, end_time, description)
         VALUES (?, ?, ?, ?, ?);
-        """,
-        (
-            task_data.get("subject"),
-            task_data.get("date"),
-            task_data.get("start_time"),
-            task_data.get("end_time"),
-            task_data.get("description"),
-        ),
-    )
+    """, (
+        task_data.get("subject"),
+        task_data.get("date"),
+        task_data.get("start_time"),
+        task_data.get("end_time"),
+        task_data.get("description"),
+    ))
 
     conn.commit()
     conn.close()
 
 
-# If you run `python db.py` directly, it will just initialize the DB
 if __name__ == "__main__":
     init_db()
     print("Database initialized.")
