@@ -54,6 +54,20 @@ def generate_timetable():
         "tasks": tasks
     })
 
+@app.route('/')
+def home():
+        return "Backend is running"
+
+@app.route("/add-task", methods=["POST"])
+def add_task():
+    data = request.json
+    task = data.get("task")
+
+    if not task:
+        return jsonify({"message": "Task is empty"}), 400
+
+    return jsonify({"message": "Task added", "task": task})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
