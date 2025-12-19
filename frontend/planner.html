@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Study Mate - Planner</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 20px;
+      background-color: #f5f6fa;
+      color: #2f3640;
+    }
+
+    /* Three dots menu */
+    #menuBtn {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    #menuItems {
+      display: none;
+      position: fixed;
+      top: 60px;
+      right: 30px;
+      background: white;
+      color: #333;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    #menuItems div {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    h1 { text-align: center; margin-bottom: 30px; color: #273c75; }
+
+    section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    section h2 { color: #192a56; margin-bottom: 15px; }
+
+    label { display: block; margin-bottom: 10px; font-weight: 500; }
+
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #dcdde1;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #487eb0; }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #487eb0;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background-color: #40739e; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #dcdde1;
+    }
+
+    th { background-color: #40739e; color: white; border-radius: 6px; }
+    tbody tr:nth-child(even) { background-color: #f1f2f6; }
+
+    .timetable-panel { max-height: 400px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+
+  <!-- Three-dot menu -->
+  <div id="menuBtn">⋮</div>
+  <div id="menuItems">
+    <div onclick="alert('Overview coming soon!')">Overview</div>
+    <div onclick="alert('Settings coming soon!')">Settings</div>
+    <div onclick="alert('Help coming soon!')">Help</div>
+  </div>
+
+  <script>
+    const menuBtn = document.getElementById("menuBtn");
+    const menuItems = document.getElementById("menuItems");
+    menuBtn.onclick = () => {
+      menuItems.style.display = menuItems.style.display === "block" ? "none" : "block";
+    };
+    window.onclick = (e) => {
+      if (!menuBtn.contains(e.target) && !menuItems.contains(e.target)) {
+        menuItems.style.display = "none";
+      }
+    };
+  </script>
+
+  <h1>Create Exam & Generate Timetable</h1>
+
+  <!-- Add Exam Section -->
+  <section>
+    <h2>Add Exam</h2>
+    <label>Subject:
+      <input type="text" id="subject" placeholder="Maths, Physics..." />
+    </label>
+    <label>Exam Date (YYYY-MM-DD):
+      <input type="text" id="examDate" placeholder="2025-01-20" />
+    </label>
+    <label>Total Chapters:
+      <input type="number" id="totalChapters" />
+    </label>
+    <label>Hours per Day:
+      <input type="number" id="hoursPerDay" />
+    </label>
+    <button onclick="addExam()">Save Exam</button>
+  </section>
+
+  <!-- Generate Timetable Section -->
+  <section>
+    <h2>Generate Timetable</h2>
+    <label>Exam ID:
+      <input type="number" id="examId" placeholder="Enter Exam ID" />
+    </label>
+    <button onclick="generateTimetable()">Generate</button>
+
+    <div class="timetable-panel">
+      <h2>Generated Timetable</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Start Chapter</th>
+            <th>End Chapter</th>
+            <th>Hours</th>
+          </tr>
+        </thead>
+        <tbody id="timetableBody">
+          <!-- rows added by JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script src="js/timetable.js"></script>
+
+</body>
+</html>
