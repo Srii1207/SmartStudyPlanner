@@ -1,118 +1,142 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
-from db import (
-    create_tables,
-    insert_exam,
-    get_all_exams,
-    save_timetable_rows,
-    get_timetable_for_date,
-)
+import db
 
 app = Flask(__name__)
 CORS(app)
 
-# Create tables when backend starts
-create_tables()
+
+db.init_db()
 
 
-@app.route("/", methods=["GET"])
-def health_check():
-    return jsonify({"status": "ok", "message": "Backend running"})
+@app.route("/")
+def home():
+    return jsonify({"status": "ok", "message": "Smart Study Planner backend running"})
 
 
-# ------------------ ADD EXAM ------------------
 @app.route("/api/exams", methods=["POST"])
-def api_add_exam():
-    data = request.get_json() or {}
+def add_exam():
+    """
+    Add a new exam.
+    Input JSON:
+    {
+        "subject": "DBMS",
+        "exam_date": "2025-12-20",
+        "total_chapters": 10,
+        "hours_per_day": 4
+    }
+    """
+    data = request.get_json()
 
     subject = data.get("subject")
-    exam_date = data.get("examDate")
-    total_chapters = data.get("totalChapters")
-    hours_per_day = data.get("hoursPerDay")
+    exam_date = data.get("exam_date")
+    total_chapters = data.get("total_chapters")
+    hours_per_day = data.get("hours_per_day")
 
-    if not subject or not exam_date or total_chapters is None or hours_per_day is None:
-        return jsonify({"error": "Missing fields"}), 400
+    if not all([subject, exam_date, total_chapters, hours_per_day]):
+        return jsonify({"error": "Missing required fields"}), 400
 
-    exam_id = insert_exam(subject, exam_date, total_chapters, hours_per_day)
-    return jsonify({"message": "Exam saved", "examId": exam_id})
+    exam_id = db.add_exam(
+        subject,
+        exam_date,
+        total_chapters,
+        hours_per_day
+    )
+
+    return jsonify({"message": "Exam added", "exam_id": exam_id})
 
 
-# ------------------ LIST EXAMS ------------------
 @app.route("/api/exams", methods=["GET"])
-def api_list_exams():
-    exams = get_all_exams()
+def list_exams():
+    """Return all exams."""
+    exams = db.get_all_exams()
     return jsonify({"exams": exams})
 
 
-# ------------------ GENERATE TIMETABLE ------------------
+
+
 @app.route("/api/generate-timetable", methods=["POST"])
-def api_generate_timetable():
-    data = request.get_json() or {}
-    exam_id = data.get("examId")
+def generate_timetable():
+    """
+    Generate timetable for a given exam.
+    Input JSON:
+    {
+        "exam_id": 1
+    }
+    """
+    data = request.get_json()
+    exam_id = data.get("exam_id")
 
-    if exam_id is None:
-        return jsonify({"error": "examId required"}), 400
-
-    # get exam info
-    exams = get_all_exams()
-    exam = next((e for e in exams if e["id"] == exam_id), None)
-
-    if exam is None:
+    exam = db.get_exam_by_id(exam_id)
+    if not exam:
         return jsonify({"error": "Exam not found"}), 404
 
-    today = date.today()
+    subject = exam["subject"]
     exam_date = datetime.strptime(exam["exam_date"], "%Y-%m-%d").date()
+    total_chapters = exam["total_chapters"]
+    hours_per_day = exam["hours_per_day"]
+
+    today = date.today()
     days_left = (exam_date - today).days
 
     if days_left <= 0:
-        return jsonify({"error": "Exam must be in the future"}), 400
+        return jsonify({"error": "Exam date must be in the future"}), 400
 
-    total_chapters = exam["total_chapters"]
-    hours_per_day = exam["hours_per_day"]
+    # Clear any old timetable for this exam
+    db.clear_tasks_for_exam(exam_id)
+
+    # Simple, explainable logic
     chapters_per_day = max(1, total_chapters // days_left)
 
-    # Generate timetable rows
-    timetable_rows = []
     current_chapter = 1
     current_date = today
 
     while current_chapter <= total_chapters and current_date <= exam_date:
-        end_chapter = min(current_chapter + chapters_per_day - 1, total_chapters)
+        end_chapter = min(
+            current_chapter + chapters_per_day - 1,
+            total_chapters
+        )
 
-        timetable_rows.append({
-            "exam_id": exam_id,
-            "date": current_date.strftime("%Y-%m-%d"),
-            "start_chapter": current_chapter,
-            "end_chapter": end_chapter,
-            "hours": hours_per_day
-        })
+        db.add_task(
+            exam_id=exam_id,
+            subject=subject,
+            task_date=current_date.isoformat(),
+            start_chapter=current_chapter,
+            end_chapter=end_chapter,
+            hours=hours_per_day
+        )
 
         current_chapter = end_chapter + 1
-        current_date = current_date.fromordinal(current_date.toordinal() + 1)
+        current_date += timedelta(days=1)
 
-    save_timetable_rows(exam_id, timetable_rows)
-
-    return jsonify({"message": "Timetable generated", "timetable": timetable_rows})
+    return jsonify({"message": "Timetable generated successfully"})
 
 
-# ------------------ TODAY'S PLAN ------------------
+# ---------------- FETCH TIMETABLE ----------------
+
+@app.route("/api/timetable", methods=["GET"])
+def get_timetable():
+    """Return full timetable."""
+    timetable = db.get_timetable()
+    return jsonify({"timetable": timetable})
+
+
 @app.route("/api/today-plan", methods=["GET"])
-def api_today_plan():
-    date_input = request.args.get("date")
-    if date_input:
-        try:
-            today = datetime.strptime(date_input, "%Y-%m-%d").date()
-        except ValueError:
-            return jsonify({"error": "Invalid date"}), 400
+def today_plan():
+    """Return today's study plan."""
+    date_param = request.args.get("date")
+
+    if date_param:
+        plan = db.get_today_plan(date_param)
     else:
-        today = date.today()
+        plan = db.get_today_plan()
 
-    rows = get_timetable_for_date(today.strftime("%Y-%m-%d"))
+    return jsonify({"today_plan": plan})
 
-    return jsonify({"date": today.strftime("%Y-%m-%d"), "plan": rows})
 
+# ---------------- MAIN ----------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+        app.run(debug=True)

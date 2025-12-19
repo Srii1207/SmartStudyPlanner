@@ -1,16 +1,22 @@
 import sqlite3
+from datetime import date
 
-DB_NAME = "study_planner.db"
+DB_PATH = "study_planner.db"
 
 
 def get_connection():
-    return sqlite3.connect(DB_NAME)
+    """Create and return a DB connection."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
-def create_tables():
+def init_db():
+    """Create required tables for the project."""
     conn = get_connection()
     cur = conn.cursor()
 
+    
     cur.execute("""
         CREATE TABLE IF NOT EXISTS exams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,11 +27,13 @@ def create_tables():
         );
     """)
 
+    
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS timetable (
+        CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             exam_id INTEGER NOT NULL,
-            date TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            task_date TEXT NOT NULL,
             start_chapter INTEGER NOT NULL,
             end_chapter INTEGER NOT NULL,
             hours INTEGER NOT NULL,
@@ -37,13 +45,16 @@ def create_tables():
     conn.close()
 
 
-def insert_exam(subject, exam_date, total_chapters, hours_per_day):
+
+
+def add_exam(subject, exam_date, total_chapters, hours_per_day):
+    """Insert a new exam and return its ID."""
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         INSERT INTO exams (subject, exam_date, total_chapters, hours_per_day)
-        VALUES (?, ?, ?, ?)
+        VALUES (?, ?, ?, ?);
     """, (subject, exam_date, total_chapters, hours_per_day))
 
     conn.commit()
@@ -53,67 +64,100 @@ def insert_exam(subject, exam_date, total_chapters, hours_per_day):
 
 
 def get_all_exams():
+    """Return all exams."""
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, subject, exam_date, total_chapters, hours_per_day FROM exams")
+    cur.execute("SELECT * FROM exams;")
     rows = cur.fetchall()
-
     conn.close()
 
-    return [
-        {
-            "id": row[0],
-            "subject": row[1],
-            "exam_date": row[2],
-            "total_chapters": row[3],
-            "hours_per_day": row[4]
-        }
-        for row in rows
-    ]
+    return [dict(row) for row in rows]
 
 
-def save_timetable_rows(exam_id, rows):
+def get_exam_by_id(exam_id):
+    """Return a single exam by ID."""
     conn = get_connection()
     cur = conn.cursor()
 
-    # Clear existing timetable for exam
-    cur.execute("DELETE FROM timetable WHERE exam_id = ?", (exam_id,))
+    cur.execute("SELECT * FROM exams WHERE id = ?;", (exam_id,))
+    row = cur.fetchone()
+    conn.close()
 
-    for row in rows:
-        cur.execute("""
-            INSERT INTO timetable (exam_id, date, start_chapter, end_chapter, hours)
-            VALUES (?, ?, ?, ?, ?)
-        """, (row["exam_id"], row["date"], row["start_chapter"], row["end_chapter"], row["hours"]))
+    return dict(row) if row else None
+
+
+
+
+def clear_tasks_for_exam(exam_id):
+    """Delete existing timetable rows for an exam."""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM tasks WHERE exam_id = ?;", (exam_id,))
+    conn.commit()
+    conn.close()
+
+
+def add_task(exam_id, subject, task_date, start_chapter, end_chapter, hours):
+    """Insert one timetable (study) row."""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO tasks (
+            exam_id, subject, task_date,
+            start_chapter, end_chapter, hours
+        )
+        VALUES (?, ?, ?, ?, ?, ?);
+    """, (
+        exam_id,
+        subject,
+        task_date,
+        start_chapter,
+        end_chapter,
+        hours
+    ))
 
     conn.commit()
     conn.close()
 
 
-def get_timetable_for_date(date_str):
+def get_timetable():
+    """Return full generated timetable."""
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT t.id, t.exam_id, e.subject, t.date, t.start_chapter, t.end_chapter, t.hours
-        FROM timetable t
-        JOIN exams e ON t.exam_id = e.id
-        WHERE t.date = ?
-        ORDER BY e.subject
-    """, (date_str,))
+        SELECT * FROM tasks
+        ORDER BY task_date;
+    """)
+    rows = cur.fetchall()
+    conn.close()
+
+    return [dict(row) for row in rows]
+
+
+def get_today_plan(target_date=None):
+    """Return today's study plan."""
+    if target_date is None:
+        target_date = date.today().isoformat()
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM tasks
+        WHERE task_date = ?
+        ORDER BY subject;
+    """, (target_date,))
 
     rows = cur.fetchall()
     conn.close()
 
-    return [
-        {
-            "id": row[0],
-            "exam_id": row[1],
-            "subject": row[2],
-            "date": row[3],
-            "start_chapter": row[4],
-            "end_chapter": row[5],
-            "hours": row[6]
-        }
-        for row in rows
-    ]
+    return [dict(row) for row in rows]
+
+
+if _name_ == "_main_":
+    init_db()
+    print("Database initialized successfully.")

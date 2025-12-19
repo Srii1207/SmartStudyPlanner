@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Study Planner - NotebookLM Style</title>
+
   <style>
-    /* Reset and basic styling */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -24,7 +24,6 @@
       color: #273c75;
     }
 
-    /* Grid layout like NotebookLM */
     .container {
       display: grid;
       grid-template-columns: 1fr 2fr 1fr;
@@ -55,12 +54,6 @@
       margin-top: 5px;
       border-radius: 6px;
       border: 1px solid #dcdde1;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus {
-      border-color: #487eb0;
     }
 
     button {
@@ -72,7 +65,6 @@
       color: white;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
     button:hover {
@@ -94,52 +86,46 @@
     th {
       background-color: #40739e;
       color: white;
-      border-radius: 6px;
     }
 
     tbody tr:nth-child(even) {
       background-color: #f1f2f6;
     }
 
-    /* Scrollable timetable panel */
     .timetable-panel {
       max-height: 400px;
       overflow-y: auto;
     }
   </style>
 </head>
+
 <body>
   <h1>Study Planner</h1>
 
   <div class="container">
-    <!-- Left Panel: Add Exam -->
+
+    <!-- Left Panel -->
     <section>
       <h2>Add Exam</h2>
-      <label>Subject:
-        <input type="text" id="subject" placeholder="Maths, Physics..." />
+      <label>Subject
+        <input type="text" id="subject">
       </label>
-      <label>Exam Date (YYYY-MM-DD):
-        <input type="text" id="examDate" placeholder="2025-01-20" />
+      <label>Exam Date
+        <input type="date" id="examDate">
       </label>
-      <label>Total Chapters:
-        <input type="number" id="totalChapters" />
+      <label>Total Chapters
+        <input type="number" id="totalChapters">
       </label>
-      <label>Hours per Day:
-        <input type="number" id="hoursPerDay" />
+      <label>Hours per Day
+        <input type="number" id="hoursPerDay">
       </label>
-      <button onclick="addExam()">Save Exam</button>
+      <button>Save Exam</button>
     </section>
 
-    <!-- Center Panel: Generate Timetable -->
+    <!-- Center Panel -->
     <section>
-      <h2>Generate Timetable</h2>
-      <label>Exam ID:
-        <input type="number" id="examId" placeholder="Enter Exam ID" />
-      </label>
-      <button onclick="generateTimetable()">Generate</button>
-
+      <h2>Generated Timetable</h2>
       <div class="timetable-panel">
-        <h2>Generated Timetable</h2>
         <table>
           <thead>
             <tr>
@@ -149,22 +135,27 @@
               <th>Hours</th>
             </tr>
           </thead>
-          <tbody id="timetableBody">
-            <!-- rows added by JS -->
+          <tbody>
+            <tr>
+              <td>2025-01-10</td>
+              <td>1</td>
+              <td>3</td>
+              <td>4</td>
+              
+            </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- Right Panel: Tools (NotebookLM style) -->
+    <!-- Right Panel -->
     <section>
       <h2>Tools</h2>
-      <button onclick="alert('Summary Tool Coming Soon!')">Summary</button>
-      <button onclick="alert('Flashcards Tool Coming Soon!')">Flashcards</button>
-      <button onclick="alert('Export Tool Coming Soon!')">Export PDF</button>
+      <button>Summary</button>
+      <button>Flashcards</button>
+      <button>Export PDF</button>
     </section>
-  </div>
 
-  <script src="js/timetable.js"></script>
+  </div>
 </body>
 </html>
