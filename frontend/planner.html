@@ -124,49 +124,49 @@
 
   <!-- Add Exam Section -->
   <section>
-    <h2>Add Exam</h2>
-    <label>Subject:
-      <input type="text" id="subject" placeholder="Maths, Physics..." />
-    </label>
-    <label>Exam Date (YYYY-MM-DD):
-      <input type="text" id="examDate" placeholder="2025-01-20" />
-    </label>
-    <label>Total Chapters:
-      <input type="number" id="totalChapters" />
-    </label>
-    <label>Hours per Day:
-      <input type="number" id="hoursPerDay" />
-    </label>
-    <button onclick="addExam()">Save Exam</button>
+  <h3>Save Exam</h3>
+
+  <label>Subject:</label>
+  <input type="text" id="subject" />
+
+  <label>Exam Date (YYYY-MM-DD):</label>
+  <input type="date" id="examDate" />
+
+  <label>Total Chapters:</label>
+  <input type="number" id="totalChapters" />
+
+  <label>Hours per Day:</label>
+  <input type="number" id="hoursPerDay" />
+
+  <button id="saveExamBtn">Save Exam</button>
+
   </section>
+
 
   <!-- Generate Timetable Section -->
   <section>
     <h2>Generate Timetable</h2>
-    <label>Exam ID:
-      <input type="number" id="examId" placeholder="Enter Exam ID" />
-    </label>
+    <label>Exam ID:</label>
+    <input type="number" id="examId" placeholder="Enter Exam ID" />
+
     <button onclick="generateTimetable()">Generate</button>
 
-    <div class="timetable-panel">
-      <h2>Generated Timetable</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Start Chapter</th>
-            <th>End Chapter</th>
-            <th>Hours</th>
-          </tr>
-        </thead>
-        <tbody id="timetableBody">
-          <!-- rows added by JS -->
-        </tbody>
-      </table>
-    </div>
+    <button id="generateBtn">Generate</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Start Chapter</th>
+          <th>End Chapter</th>
+          <th>Hours</th>
+        </tr>
+      </thead>
+      <tbody id="timetableBody"></tbody>
+    </table>
   </section>
 
-  <script src="js/timetable.js"></script>
+  <script src="js/planner.js"></script>
 
 </body>
 </html>

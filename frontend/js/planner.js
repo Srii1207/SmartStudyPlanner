@@ -1,34 +1,22 @@
-const form = document.getElementById("plannerForm");
-const taskInput = document.getElementById("task");
-const taskList = document.getElementById("taskList");
+document.getElementById("saveExamBtn").addEventListener("click", async () => {
+  const subject = document.getElementById("subject").value;
+  const examDate = document.getElementById("examDate").value;
+  const totalChapters = document.getElementById("totalChapters").value;
+  const hoursPerDay = document.getElementById("hoursPerDay").value;
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  console.log("Sending exam data...");
 
-  const task = taskInput.value;
+  const response = await fetch("http://127.0.0.1:5000/save-exam", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      subject,
+      exam_date: examDate,
+      total_chapters: totalChapters,
+      hours_per_day: hoursPerDay
+    })
+  });
 
-  try {
-    const response = await fetch("http://127.0.0.1:5000/add-task", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ task })
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      const li = document.createElement("li");
-      li.textContent = data.task;
-      taskList.appendChild(li);
-      taskInput.value = "";
-    } else {
-      alert(data.message);
-    }
-
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Backend not running");
-  }
+  const data = await response.json();
+  alert(data.message);
 });

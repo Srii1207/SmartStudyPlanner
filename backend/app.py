@@ -68,6 +68,12 @@ def add_task():
 
     return jsonify({"message": "Task added", "task": task})
 
+@app.route("/save-exam", methods=["POST"])
+def save_exam():
+    data = request.json
+    print("Received exam:", data)
+    return jsonify({"message": "Exam saved successfully"})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
